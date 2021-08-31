@@ -1,0 +1,44 @@
+name: Style
+on: pull_request
+defaults:
+  run:
+    shell: bash
+jobs:
+  # Check correct formatting
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup update stable && rustup default stable
+      - run: rustup component add rustfmt
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup update nightly && rustup default nightly
+      - run: rustup component add clippy-preview
+      - name: Run clippy lints
+        id: clippy
+        run: |
+          clippy_output=$(cargo clippy -q 2>&1)
+          if [ ! -z "${clippy_output}" ]; then
+            echo -e '# Output of `cargo clippy`\n```' > clippy.output
+            echo "${clippy_output}" >> clippy.output
+            echo '```' >> clippy.output
+            echo 'If your PR introduced these issues, please try to address them.' >> clippy.output
+
+            # store result for further evaluation
+            echo '::set-output name=clippy_has_outputs::true'
+          else
+            echo '::set-output name=clippy_has_outputs::false'
+          fi
+      - name: Comment clippy output
+        if: ${{ steps.clippy.outputs.line_count }}
+        uses: machine-learning-apps/pr-comment@1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path: clippy.output

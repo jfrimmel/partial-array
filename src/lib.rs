@@ -40,11 +40,16 @@
 //! As [`PartialArray`] implements [`IntoIterator`], you can use it in a `for`
 //! loop directly:
 //! ```
-//! # use partial_array::PartialArray;
-//! let array = PartialArray::<_, 4>::from([42_u16; 4]);
+//! # use partial_array::partial_array;
+//! let array = partial_array![42_u16; 4];
 //! for item in array {
 //!     println!("{}", item);
 //! }
+//! ```
+//! This crate also provides a [macro] to make creating partial arrays easier:
+//! ```
+//! # use partial_array::partial_array;
+//! let array = partial_array![42, -13, 2];
 //! ```
 //!
 //! ## Behavior on out-of-bounds accesses
@@ -67,7 +72,7 @@
 //! [slice]: prim@slice
 //! [`from`]: core::convert::From::from
 //! [`try_from`]: core::convert::TryFrom::try_from
-
+//! [macro]: crate::partial_array
 #![cfg_attr(not(test), no_std)] // allow `std` for tests
 
 #[cfg(test)]
@@ -326,6 +331,26 @@ impl<T, const N: usize> From<[T; N]> for PartialArray<T, N> {
     }
 }
 
+/// Create a partial array from a given set of values (similar to `vec![]`).
+///
+/// # Example
+/// ```
+/// use partial_array::{partial_array, PartialArray};
+///
+/// assert_eq!(partial_array![0, 1, 2], PartialArray::from([0, 1, 2]));
+/// assert_eq!(partial_array![17, 12, 2, ], PartialArray::from([17, 12, 2]));
+/// assert_eq!(partial_array![42; 5], PartialArray::from([42; 5]));
+/// ```
+#[macro_export]
+macro_rules! partial_array {
+    ($($element:expr),*$(,)?) => {
+        $crate::PartialArray::from([$($element),*])
+    };
+    ($element:expr; $n: literal) => {
+        $crate::PartialArray::from([$element; $n])
+    };
+}
+
 /// Types for external iteration.
 ///
 /// This module provides the [`iter::IntoIter`] type, which is an by-value
@@ -334,8 +359,8 @@ impl<T, const N: usize> From<[T; N]> for PartialArray<T, N> {
 /// store the iterator. In the following example a local variable is explicitly
 /// annotated, but normally one would use just type-inference.
 /// ```
-/// # use partial_array::PartialArray;
-/// let array = PartialArray::from([2, 4, 8, 16, 32, 64]);
+/// # use partial_array::partial_array;
+/// let array = partial_array![2, 4, 8, 16, 32, 64];
 /// let iter: partial_array::iter::IntoIter<_, 6> = array.into_iter();
 /// for (i, value) in iter.enumerate() {
 ///     println!("Item #{}: {}", i, value);

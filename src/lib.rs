@@ -151,12 +151,102 @@ impl<T: Debug, const N: usize> Debug for PartialArray<T, N> {
         <[T] as Debug>::fmt(self, f)
     }
 }
+impl<T: PartialEq, const N: usize, const M: usize> PartialEq<PartialArray<T, M>>
+    for PartialArray<T, N>
+{
+    /// Compare the filled elements of [`PartialArray`]s.
+    ///
+    /// Two [`PartialArray`]s can be compared even if their lengths do not
+    /// match. Only the number of filled elements and their values are compared.
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::PartialArray;
+    /// let a: PartialArray<u8, 5> = (0..4).collect();
+    /// let b: PartialArray<u8, 500> = (0..4).collect();
+    ///
+    /// assert_eq!(a, b);
+    /// ```
+    fn eq(&self, other: &PartialArray<T, M>) -> bool {
+        self.len() == other.len() && self.deref() == other.deref()
+    }
+}
 impl<T: PartialEq, const N: usize, const M: usize> PartialEq<[T; M]> for PartialArray<T, N> {
-    /// Compare the slice of filled elements (potentially less than `N`).
+    /// Compare a [`PartialArray`] with a normal array.
+    ///
+    /// This compares the filled elements (potentially less than `N`).
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::PartialArray;
+    /// let a: PartialArray<u8, 5> = (10..15).collect();
+    /// let b = [10, 11, 12, 13, 14];
+    ///
+    /// assert_eq!(a, b);
+    ///
+    /// // the other way round is also possible.
+    /// assert_eq!(b, a);
+    /// ```
     fn eq(&self, other: &[T; M]) -> bool {
         self.len() == other.len() && self.deref() == other.deref()
     }
 }
+impl<T: PartialEq, const N: usize, const M: usize> PartialEq<PartialArray<T, M>> for [T; N] {
+    /// Compare a normal array with a [`PartialArray`].
+    ///
+    /// This compares the filled elements (potentially less than `N`).
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::PartialArray;
+    /// let a = [10, 11, 12, 13, 14];
+    /// let b: PartialArray<u8, 5> = (10..15).collect();
+    ///
+    /// assert_eq!(a, b);
+    ///
+    /// // the other way round is also possible.
+    /// assert_eq!(b, a);
+    /// ```
+    fn eq(&self, other: &PartialArray<T, M>) -> bool {
+        self.len() == other.len() && self.deref() == other.deref()
+    }
+}
+impl<T: PartialEq, const N: usize> PartialEq<&[T]> for PartialArray<T, N> {
+    /// Compare the slice of filled elements (potentially less than `N`).
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::PartialArray;
+    /// let a: PartialArray<u8, 5> = (10..15).collect();
+    /// let b = &[10, 11, 12, 13, 14][..];
+    ///
+    /// assert_eq!(a, b);
+    /// ```
+    fn eq(&self, other: &&[T]) -> bool {
+        self.len() == other.len() && self.deref() == other.deref()
+    }
+}
+impl<T: PartialEq, const N: usize> PartialEq<PartialArray<T, N>> for &[T] {
+    /// Compare a slice with a [`PartialArray`].
+    ///
+    /// This compares the filled elements (potentially less than `N`).
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::PartialArray;
+    /// let a: &[u8] = &[10, 11, 12, 13, 14];
+    /// let b: PartialArray<u8, 5> = (10..15).collect();
+    ///
+    /// assert_eq!(a, b);
+    ///
+    /// // the other way round is also possible.
+    /// assert_eq!(b, a);
+    /// ```
+    fn eq(&self, other: &PartialArray<T, N>) -> bool {
+        self.len() == other.len() && self.deref() == other.deref()
+    }
+}
+impl<T: Eq, const N: usize> Eq for PartialArray<T, N> {}
 impl<T, const N: usize> Default for PartialArray<T, N> {
     /// Initialize an empty [`PartialArray`].
     fn default() -> Self {

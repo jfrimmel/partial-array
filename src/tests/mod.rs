@@ -1,5 +1,6 @@
 mod debug;
 mod deref;
-mod from_iter_and_eq;
+mod eq;
+mod from_iter;
 mod into_iter;
 mod size_layout;

@@ -346,6 +346,20 @@ pub mod iter {
     use core::iter::FusedIterator;
     use core::mem::{self, MaybeUninit};
 
+    /// An iterator that moves out of a [`PartialArray`], therefore an owning
+    /// by-value iterator.
+    ///
+    /// This struct is created by the [`into_iter`] method on Vec (provided by
+    /// the [`IntoIterator`] trait).
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::PartialArray;
+    /// let v = PartialArray::<u8, 3>::from([0, 1, 2]);
+    /// let iter: partial_array::iter::IntoIter<_, 3> = v.into_iter();
+    /// ```
+    ///
+    /// [`into_iter`]: IntoIterator::into_iter
     #[must_use = "iterator adaptors are lazy and do nothing unless consumed"]
     pub struct IntoIter<T, const N: usize> {
         // invariant: `read..filled` has to be initialized
@@ -354,6 +368,7 @@ pub mod iter {
         read: usize,
     }
     impl<T, const N: usize> IntoIter<T, N> {
+        /// Create a new [`IntoIter<T, N>`] from a [`PartialArray<T, N>`].
         pub(crate) fn new(array: PartialArray<T, N>) -> Self {
             Self {
                 array: array.array,

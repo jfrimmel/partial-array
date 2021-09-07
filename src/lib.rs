@@ -80,7 +80,9 @@ pub mod iter;
 #[cfg(test)]
 mod tests;
 
+use core::cmp::Ordering;
 use core::fmt::{self, Debug, Formatter};
+use core::hash::{Hash, Hasher};
 use core::iter::{FromIterator, IntoIterator};
 use core::mem::{self, MaybeUninit};
 use core::ops::{Deref, DerefMut};
@@ -261,6 +263,59 @@ impl<T, const N: usize> Default for PartialArray<T, N> {
             array: [Self::UNINIT; N],
             filled: 0,
         }
+    }
+}
+impl<T: Hash, const N: usize> Hash for PartialArray<T, N> {
+    /// Calculate the [`Hash`] of a [`PartialArray`].
+    ///
+    /// This has takes only the initialized elements into account (which is in
+    /// line with the `PartialEq` implementation).
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.deref().hash(state);
+    }
+}
+impl<T: PartialOrd, const N: usize> PartialOrd for PartialArray<T, N> {
+    /// Compare two [`PartialArray`]s element-by-element.
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::partial_array;
+    /// assert!(partial_array![17.0, 24.0, 2.0] < partial_array![17.0, 24.0, 9.0]);
+    /// ```
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.deref().partial_cmp(other.deref())
+    }
+}
+impl<T: Ord, const N: usize> Ord for PartialArray<T, N> {
+    /// Compare two [`PartialArray`]s element-by-element.
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::partial_array;
+    /// assert!(partial_array![17, 24, 25] < partial_array![17, 24, 100]);
+    /// ```
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.deref().cmp(other.deref())
+    }
+}
+impl<T: Clone, const N: usize> Clone for PartialArray<T, N> {
+    /// Clone a [`PartialArray`].
+    ///
+    /// The whole array storage is cloned, i.e. the old and new length are the
+    /// same. Uninitialized elements remain uninitialized. The number of entries
+    /// in the array stays the same.
+    ///
+    /// # Example
+    /// ```
+    /// # use partial_array::PartialArray;
+    /// let a: PartialArray::<i32, 10> = (32..37).map(|x| x * 2).collect();
+    /// let b = a.clone();
+    ///
+    /// assert_eq!(a.len(), b.len());
+    /// assert_eq!(a, b);
+    /// ```
+    fn clone(&self) -> Self {
+        self.iter().cloned().collect()
     }
 }
 impl<T, const N: usize> PartialArray<T, N> {

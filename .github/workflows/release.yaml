@@ -26,6 +26,7 @@ jobs:
 
           sed -i "s/^# unreleased$/# v${VERSION}/" CHANGELOG.md
           sed -i "1i # unreleased\n" CHANGELOG.md
+          git add CHANGELOG.md
 
           git commit -m "Release version \`${VERSION}\`" || :
           git push

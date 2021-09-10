@@ -1,0 +1,29 @@
+## Automatic release process
+# This workflow is a manually-triggered workflow, which automatically bumps the
+# version and publishes the new crate version to crates.io. This uses an API
+# token stored in the Github secret `CRATES_IO`.
+name: Release crate
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The new crate version to release, must be a non-existing version
+        required: true
+env:
+  CRATES_IO: ${{ secrets.CRATES_IO }}
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create release commit
+        run: |
+          sed -i '/^version = .*$/version = "${{ github.event.inputs.version }}"/' Cargo.toml
+          git add Cargo.toml
+          git commit -m 'Bump version'
+          git push
+      - name: Create tag
+        run: git tag -a '${{ github.event.inputs.version }}' -m 'v${{ github.event.inputs.version }}'
+      - name: Push tag
+        run: git push origin '${{ github.event.inputs.version }}'
+      - name: Publish to crates.io
+        run: cargo publish --token '${CRATES_IO}'

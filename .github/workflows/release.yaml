@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Create release commit
         run: |
-          sed -i '/^version = .*$/version = "${{ github.event.inputs.version }}"/' Cargo.toml
+          sed -i 's/^version = .*$/version = "${{ github.event.inputs.version }}"/' Cargo.toml
           git add Cargo.toml
           git commit -m 'Bump version'
           git push

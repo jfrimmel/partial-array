@@ -16,6 +16,7 @@
 //!
 //! [`iter::IntoIter`]: IntoIter
 use crate::PartialArray;
+use core::fmt::{self, Debug, Formatter};
 use core::iter::FusedIterator;
 use core::mem::{self, MaybeUninit};
 
@@ -48,6 +49,16 @@ impl<T, const N: usize> IntoIter<T, N> {
             filled: array.filled,
             read: 0,
         }
+    }
+}
+impl<T: Debug, const N: usize> Debug for IntoIter<T, N> {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let slice = &self.array[self.read..self.filled];
+        // SAFETY: the invariant is: `self.read..self.filled` is initialized, so
+        // it is no UB reading those. The transmute itself is safe, since
+        // `MaybeUninit` is `#[rpr(transparent)]`.
+        let slice = unsafe { mem::transmute(slice) };
+        <[T] as Debug>::fmt(slice, f)
     }
 }
 impl<T, const N: usize> Iterator for IntoIter<T, N> {

@@ -17,22 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Configure git user for Bot
+        run: |
+          git config --global user.email 'noreply@github.com'
+          git config --global user.name 'GitHub Actions Release Bot'
       - name: Create release commit
         run: |
           sed -i "s/^version = .*$/version = \"${VERSION}\"/" Cargo.toml
-          git config --global user.email 'noreply@github.com'
-          git config --global user.name 'GitHub Actions Release Bot'
           git add Cargo.toml
 
           sed -i "s/^# unreleased$/# v${VERSION}/" CHANGELOG.md
-          sed -i "1i # unreleased\n" CHANGELOG.md
+          sed -i '1i # unreleased\n' CHANGELOG.md
           git add CHANGELOG.md
 
           git commit -m "Release version \`${VERSION}\`" || :
-          git push
       - name: Create tag
         run: git tag -a "${VERSION}" -m "v${VERSION}"
-      - name: Push tag
-        run: git push --tags
+      - name: Push changes
+        run: git push --tags HEAD
       - name: Publish to crates.io
         run: cargo publish --token "${CRATES_IO}"

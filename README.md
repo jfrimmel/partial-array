@@ -3,9 +3,9 @@
 [![Crates.io](https://img.shields.io/crates/v/partial-array.svg)](https://crates.io/crates/partial-array)
 [![Docs.rs](https://docs.rs/partial-array/badge.svg)](https://docs.rs/partial-array)
 
-This crate provides a central new data type, similar to an [array]: the [`PartialArray<N>`].
+This crate provides a central new data type, similar to an [array]: the [`PartialArray<N>`][partialarray].
 It is equivalent to an array, but the number of entries might be anywhere from `0` to `N`.
-While this has similarities to a `Vec<T>` keep in mind, that a [`PartialArray`] does not grow its memory: it always takes up the memory for the fully array (with some additional counter) and it cannot ever hold more than `N` elements.
+While this has similarities to a `Vec<T>` keep in mind, that a [`PartialArray`][partialarray] does not grow its memory: it always takes up the memory for the fully array (with some additional counter) and it cannot ever hold more than `N` elements.
 This means that its memory is _fully static_ and _on the stack_, making it usable from `#![no_std]` crates.
 
 ```rust
@@ -43,3 +43,6 @@ fn first_10_matching<T, I, F>(iter: I, check: F) -> PartialArray<T, 10>
     iter.into_iter().filter(check).take(10).collect()
 }
 ```
+
+[array]: https://doc.rust-lang.org/nightly/core/primitive.array.html
+[partialarray]: https://docs.rs/partial-array/latest/partial_array/struct.PartialArray.html

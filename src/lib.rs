@@ -359,13 +359,10 @@ impl<T, const N: usize> Extend<T> for PartialArray<T, N> {
         let remaining = (self.filled..N).len();
         let mut iter = iter.into_iter();
 
-        iter.by_ref()
-            .take(remaining)
-            .enumerate()
-            .for_each(|(i, element)| {
-                self.array[i] = MaybeUninit::new(element);
-                self.filled += 1;
-            });
+        iter.by_ref().take(remaining).for_each(|element| {
+            self.array[self.filled] = MaybeUninit::new(element);
+            self.filled += 1;
+        });
 
         // check, that there are no more elements left
         let remaining = iter.count();

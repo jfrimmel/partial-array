@@ -4,8 +4,8 @@ description = "Provides potentially partially-filled arrays"
 version = "0.1.2"
 edition = "2018"
 license = "MIT OR Apache-2.0"
-keywords = ["partial", "array", "collect", "FromIterator"]
-categories = ["data-structures"]
+keywords = ["partial", "array", "collect", "FromIterator", "no_std"]
+categories = ["data-structures", "no-std"]
 repository = "https://github.com/jfrimmel/partial-array"
 
 [dependencies]

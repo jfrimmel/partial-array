@@ -3,7 +3,7 @@ use crate::PartialArray;
 #[test]
 fn empty() {
     let mut partial_array: PartialArray<u8, 3> = Default::default();
-    partial_array.extend([1,2].iter().copied());
+    partial_array.extend([1, 2].iter().copied());
     assert_eq!(partial_array.len(), 2);
     assert_eq!(partial_array[0], 1);
     assert_eq!(partial_array[1], 2);
@@ -12,7 +12,7 @@ fn empty() {
 #[test]
 fn nonempty() {
     let mut partial_array: PartialArray<u8, 3> = Default::default();
-    partial_array.extend([1,2].iter().copied());
+    partial_array.extend([1, 2].iter().copied());
     partial_array.extend(Some(3));
     assert_eq!(partial_array.len(), 3);
     assert_eq!(partial_array[0], 1);

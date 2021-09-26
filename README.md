@@ -8,7 +8,24 @@ It is equivalent to an array, but the number of entries might be anywhere from `
 While this has similarities to a `Vec<T>` keep in mind, that a [`PartialArray`] does not grow its memory: it always takes up the memory for the fully array (with some additional counter) and it cannot ever hold more than `N` elements.
 This means that its memory is _fully static_ and _on the stack_, making it usable from `#![no_std]` crates.
 
-## Usages
+```rust
+// some filter function, even numbers as an easy example
+let f = |x: &i32| x % 2 == 0;
+
+let array: partial_array::PartialArray<i32, 32> = (0..).take(32).filter(f).collect();
+```
+
+## Features
+
+This crate is rather simple, but has a few key features, that might enable this crate to be considered:
+
+- zero dependencies
+- `#![no_std]` (enabled for embedded targets without dynamic memory)
+- only few `unsafe` code, can be audited easily
+- open source
+- permissive license
+
+## Example usage
 
 This new data type is most likely to be used for collecting iterators into arrays, when then length is not known, but has an upper bound, e.g.:
 

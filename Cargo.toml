@@ -7,5 +7,6 @@ license = "MIT OR Apache-2.0"
 keywords = ["partial", "array", "collect", "FromIterator", "no_std"]
 categories = ["data-structures", "no-std"]
 repository = "https://github.com/jfrimmel/partial-array"
+exclude = ["/.github", "/.gitignore"]
 
 [dependencies]

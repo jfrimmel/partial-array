@@ -318,6 +318,18 @@ impl<T: Clone, const N: usize> Clone for PartialArray<T, N> {
         self.iter().cloned().collect()
     }
 }
+impl<T, const N: usize> Drop for PartialArray<T, N> {
+    fn drop(&mut self) {
+        (0..self.filled)
+            .map(|i| mem::replace(&mut self.array[i], Self::UNINIT))
+            .map(|entry| {
+                // SAFETY: we only iterate over the filled entries, so we can be
+                // sure, that this is initialized.
+                unsafe { entry.assume_init() }
+            })
+            .for_each(drop);
+    }
+}
 impl<T, const N: usize> PartialArray<T, N> {
     /// Required for `MaybeUninit::uninit()` in array initializers
     const UNINIT: MaybeUninit<T> = MaybeUninit::uninit();

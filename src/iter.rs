@@ -44,8 +44,13 @@ pub struct IntoIter<T, const N: usize> {
 impl<T, const N: usize> IntoIter<T, N> {
     /// Create a new [`IntoIter<T, N>`] from a [`PartialArray<T, N>`].
     pub(crate) fn new(array: PartialArray<T, N>) -> Self {
+        // we don't want to drop the `PartialArray`, since we re-use its memory
+        // in this new `IntoIter` and drop the memory ourselves
+        let mut array = mem::ManuallyDrop::new(array);
+        let uninit = [PartialArray::<T, N>::UNINIT; N];
+
         Self {
-            array: array.array,
+            array: mem::replace(&mut array.array, uninit),
             filled: array.filled,
             read: 0,
         }
@@ -56,7 +61,7 @@ impl<T: Debug, const N: usize> Debug for IntoIter<T, N> {
         let slice = &self.array[self.read..self.filled];
         // SAFETY: the invariant is: `self.read..self.filled` is initialized, so
         // it is no UB reading those. The transmute itself is safe, since
-        // `MaybeUninit` is `#[rpr(transparent)]`.
+        // `MaybeUninit` is `#[repr(transparent)]`.
         let slice = unsafe { mem::transmute(slice) };
         <[T] as Debug>::fmt(slice, f)
     }
@@ -92,3 +97,8 @@ impl<T, const N: usize> DoubleEndedIterator for IntoIter<T, N> {
 }
 impl<T, const N: usize> FusedIterator for IntoIter<T, N> {}
 impl<T, const N: usize> ExactSizeIterator for IntoIter<T, N> {}
+impl<T, const N: usize> Drop for IntoIter<T, N> {
+    fn drop(&mut self) {
+        self.for_each(drop);
+    }
+}

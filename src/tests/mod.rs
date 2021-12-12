@@ -1,5 +1,6 @@
 mod debug;
 mod deref;
+mod drop;
 mod eq;
 mod extend;
 mod from_iter;

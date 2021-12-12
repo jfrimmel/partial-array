@@ -1,7 +1,7 @@
 [package]
 name = "partial-array"
 description = "Provides potentially partially-filled arrays"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2018"
 license = "MIT OR Apache-2.0"
 keywords = ["partial", "array", "collect", "FromIterator", "no_std"]
